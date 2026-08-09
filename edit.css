@@ -1,0 +1,31 @@
+/* 軽量エディットモードのUI（画面のみ。印刷/PDFでは非表示） */
+.ed-btn{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:12px;
+  border:1px solid #cbd3dc; background:#fff; color:#2f93a4; font-weight:700;
+  padding:5px 10px; border-radius:6px; cursor:pointer; }
+.ed-btn:hover{ background:#f2fafc; }
+.ed-primary{ background:#2f93a4; color:#fff; border-color:#2f93a4; }
+.ed-primary:hover{ background:#267a89; }
+.ed-danger{ color:#c0392b; border-color:#e2b8b2; }
+
+.editbar{ position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:10px;
+  background:#123a4a; color:#fff; padding:8px 14px; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }
+.editbar b{ font-size:13px; }
+.editbar .ed-hint{ font-size:11px; opacity:.85; }
+.editbar .sp{ flex:1; }
+.editbar[hidden]{ display:none; }
+
+/* 編集中の視覚フィードバック */
+body.editing [contenteditable="true"]:hover{ outline:1px dashed #2f93a4; outline-offset:2px; }
+body.editing [contenteditable="true"]:focus{ outline:2px solid #2f93a4; outline-offset:2px; background:#f0fbfd; }
+body.editing .cols > *{ position:relative; }
+body.editing .cols > *:hover{ box-shadow:0 0 0 2px rgba(47,147,164,.35); }
+body.editing img{ cursor:pointer; }
+body.editing img:hover{ outline:2px solid #ea5a2d; outline-offset:2px; }
+.ed-ghost{ opacity:.4; }
+.ed-chosen{ box-shadow:0 0 0 2px #ea5a2d !important; }
+.ed-drag-handle{ cursor:grab; }
+
+/* 保存済みバッジ */
+#ed-status{ font-size:11px; opacity:.9; }
+
+@media print{ .editbar, .ed-btn, #ed-toggle{ display:none !important; } }

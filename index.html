@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;800&family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="edit.css">
 <style>
   @page { size: A3 portrait; margin: 0; }
   :root{ --ink:#2a2a2a; --accent:#ea5a2d; --accent2:#f2934a; --navy:#2f93a4; --teal:#2f93a4; --green:#7fc069; }
@@ -116,8 +117,20 @@
   }
   @media print { .webnav{ display:none; } }
 </style></head>
-<body>
-<div class="webnav">📰 協働新聞 電子版 Vol.4<span class="sp"></span><a href="kyodo_2026-07.pdf">PDF版をダウンロード</a></div>
+<body data-issue="2026-07">
+<div class="webnav">📰 協働新聞 電子版 Vol.4<span class="sp"></span>
+  <a href="kyodo_2026-07.pdf">PDF版をDL</a>
+  <button id="ed-toggle" class="ed-btn" type="button">✏️ 編集モード</button>
+</div>
+<div id="editbar" class="editbar" hidden>
+  <b>編集モード</b>
+  <span class="ed-hint">文字はクリックで修正／記事カードは掴んで並べ替え／画像はクリックで差し替え</span>
+  <span class="sp"></span>
+  <button id="ed-save" class="ed-btn ed-primary" type="button">💾 保存</button>
+  <button id="ed-export" class="ed-btn" type="button">⬇ HTML書き出し</button>
+  <button id="ed-reset" class="ed-btn ed-danger" type="button">↺ 変更を破棄</button>
+  <button id="ed-done" class="ed-btn" type="button">✓ 編集終了</button>
+</div>
 
 <!-- ============ P1 表 ============ -->
 <div class="page" data-document-role="page" data-label="P1 表 What's U p?">
@@ -294,4 +307,6 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="edit.js" defer></script>
 </body></html>
