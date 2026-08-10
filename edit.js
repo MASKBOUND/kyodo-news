@@ -289,8 +289,8 @@
     clone.querySelectorAll('script[src*="Sortable"],script[src="edit.js"],link[href="edit.css"]')
       .forEach(function (n) { n.remove(); });
     clone.querySelectorAll("[contenteditable]").forEach(function (n) { n.removeAttribute("contenteditable"); });
-    clone.querySelectorAll(".ed-ghost,.ed-chosen,.ed-textediting").forEach(function (n) {
-      n.classList.remove("ed-ghost", "ed-chosen", "ed-textediting");
+    clone.querySelectorAll(".ed-ghost,.ed-chosen,.ed-textediting,.ed-selected").forEach(function (n) {
+      n.classList.remove("ed-ghost", "ed-chosen", "ed-textediting", "ed-selected");
     });
     var body = clone.querySelector("body");
     if (body) body.classList.remove("editing"); // freelayout クラスは残す（自由配置を保持）
@@ -341,6 +341,47 @@
   }
   function saveMargins() { localStorage.setItem(LSKEY_MARGIN, JSON.stringify(MG)); }
 
+  // ================= 書式（色付きボックス・色反転・色指定） =================
+  var selEl = null;
+  var SEL_UNIT = "h1,h2,h3,h4,p,li,figure,article,.box,.sect-head,.report,.grant,.kpi,figcaption";
+  function markSelected(el) {
+    if (selEl) selEl.classList.remove("ed-selected");
+    selEl = el;
+    if (selEl) selEl.classList.add("ed-selected");
+  }
+  function pickTarget(e) {
+    if (!editing) return;
+    var el = e.target.closest && e.target.closest(SEL_UNIT);
+    if (el) markSelected(el);
+  }
+  function needSel() {
+    if (!selEl) { flash("先に対象（見出し・段落・ブロック等）をクリックで選んでください"); return false; }
+    return true;
+  }
+  function fmtBand() {           // 色反転の帯（背景色＋白文字）
+    if (!needSel()) return;
+    var bg = document.getElementById("fmt-bg").value;
+    var fg = document.getElementById("fmt-fg").value;
+    selEl.style.background = bg; selEl.style.color = fg;
+    selEl.style.padding = "2mm 3mm"; selEl.style.borderRadius = "2mm";
+    selEl.style.display = "block";
+    flash("色帯を適用しました");
+  }
+  function fmtBox() {            // 枠囲み
+    if (!needSel()) return;
+    var bg = document.getElementById("fmt-bg").value;
+    selEl.style.border = "1.5px solid " + bg; selEl.style.borderRadius = "2mm";
+    selEl.style.padding = "3mm";
+    flash("枠を適用しました");
+  }
+  function fmtClear() {
+    if (!needSel()) return;
+    ["background", "color", "padding", "border", "borderRadius"].forEach(function (k) { selEl.style[k] = ""; });
+    flash("書式をクリアしました");
+  }
+  function onBg() { if (needSel()) selEl.style.background = document.getElementById("fmt-bg").value; }
+  function onFg() { if (needSel()) selEl.style.color = document.getElementById("fmt-fg").value; }
+
   // ================= A3 PDF 出力 =================
   function exportPDF() {
     flash("印刷ダイアログで「PDFに保存」／用紙サイズ A3／余白『なし』を選んでください");
@@ -374,6 +415,12 @@
   on("ed-free", function () { if (freeOn) exitFree(); else enterFree(); });
   on("ed-pdf", exportPDF);
   on("ed-canva", toCanva);
+  on("fmt-band", fmtBand);
+  on("fmt-box", fmtBox);
+  on("fmt-clear", fmtClear);
+  var bgEl = document.getElementById("fmt-bg"); if (bgEl) bgEl.addEventListener("input", onBg);
+  var fgEl = document.getElementById("fmt-fg"); if (fgEl) fgEl.addEventListener("input", onFg);
+  colsList.forEach(function (cols) { cols.addEventListener("click", pickTarget); });
   ["t", "b", "l", "r"].forEach(function (k) {
     var el = document.getElementById("mg-" + k);
     if (el) el.addEventListener("input", onMarginInput);
