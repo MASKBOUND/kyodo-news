@@ -57,8 +57,19 @@ body.freelayout .cols > *:hover{ outline:2px solid #2f93a4; box-shadow:0 2px 10p
 body.freelayout .cols > *.ed-textediting{ cursor:text; outline:2px solid #ea5a2d; }
 body.freelayout .cols{ background:repeating-linear-gradient(0deg,transparent,transparent 9mm,rgba(47,147,164,.06) 9mm,rgba(47,147,164,.06) 10mm); }
 
+/* 素材プール パネル */
+.ed-pool-panel{ position:fixed; top:0; right:0; width:340px; max-width:92vw; height:100vh; overflow:auto; z-index:100;
+  background:#fff; box-shadow:-3px 0 18px rgba(0,0,0,.22); font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }
+.ed-pool-panel .pph{ position:sticky; top:0; background:#123a4a; color:#fff; padding:10px 12px;
+  display:flex; justify-content:space-between; align-items:center; font-size:13px; }
+.ppi{ border-bottom:1px solid #eee; padding:10px 12px; }
+.ppi-tag{ display:inline-block; color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:3px; }
+.ppi img{ width:100%; height:92px; object-fit:cover; border-radius:5px; margin:6px 0; display:block; }
+.ppi-b b{ font-size:13px; display:block; line-height:1.4; }
+.ppi-b p{ font-size:11px; color:#555; line-height:1.5; margin:4px 0 8px; }
+
 @media print{
-  .editbar, .ed-btn, #ed-toggle{ display:none !important; }
+  .editbar, .ed-btn, #ed-toggle, .ed-pool-panel{ display:none !important; }
   [data-ed-new]{ outline:none; }
   body.freelayout .cols, body.freelayout .cols > *{ outline:none !important; box-shadow:none !important; background:none !important; }
 }

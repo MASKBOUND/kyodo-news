@@ -293,6 +293,7 @@
   // ---- 公開/書き出し用HTML：編集機能は残し、一時状態だけリセット ----
   function getCleanHTML() {
     var clone = document.documentElement.cloneNode(true);
+    var pp = clone.querySelector(".ed-pool-panel"); if (pp) pp.remove(); // 素材パネルは書き出さない
     clone.querySelectorAll("[contenteditable]").forEach(function (n) { n.removeAttribute("contenteditable"); });
     clone.querySelectorAll(".ed-ghost,.ed-chosen,.ed-textediting,.ed-selected,.ed-imgsel").forEach(function (n) {
       n.classList.remove("ed-ghost", "ed-chosen", "ed-textediting", "ed-selected", "ed-imgsel");
@@ -544,6 +545,55 @@
     fitPaper();
   }
 
+  // ================= 素材プール（未掲載素材から記事を追加） =================
+  var POOL = [];
+  try { POOL = JSON.parse((document.getElementById("ed-pool") || {}).textContent || "[]"); } catch (e) { POOL = []; }
+  var poolPanel = null;
+  function esc(s) { var d = document.createElement("div"); d.textContent = s || ""; return d.innerHTML; }
+  function catColor(t) {
+    t = t || "";
+    if (/防災|災害|被災|避難|豪雨|地震|牛鬼会議/.test(t)) return ["防災・地域安全", "#c0392b"];
+    if (/助成|補助|基金|奨学|給付/.test(t)) return ["助成金", "#2f93a4"];
+    if (/講座|イベント|フェス|まつり|体験|公開講座|上映|花火|ひろば/.test(t)) return ["イベント", "#e67e22"];
+    if (/子ども|食堂|福祉|看護|寄付|支援/.test(t)) return ["福祉・子ども", "#8e44ad"];
+    return ["活動報告", "#5c9a2f"];
+  }
+  function insertPoolItem(it) {
+    var cols = currentCols(); if (!cols) return;
+    var cc = catColor(it.title + it.body);
+    var art = document.createElement("article");
+    art.className = "art"; art.setAttribute("data-ed-new", "1"); art.style.setProperty("--c", cc[1]);
+    art.innerHTML = '<span class="cat">' + cc[0] + '</span><h3>' + esc(it.title) + '</h3>' +
+      (it.image ? '<figure><img src="' + it.image + '" alt=""></figure>' : '') +
+      '<p>' + esc(it.body) + '</p>';
+    cols.appendChild(art);
+    art.querySelectorAll(TEXT_SEL).forEach(function (t) { t.setAttribute("contenteditable", "true"); });
+    var img = art.querySelector("img");
+    if (img) { img.addEventListener("click", onImgClick); img.addEventListener("dblclick", onImgDbl); }
+    art.scrollIntoView({ block: "center", behavior: "smooth" });
+    setTimeout(fitFill, 80);
+    flash("素材を記事にしました：「" + it.title + "」");
+  }
+  function togglePool() {
+    if (poolPanel) { poolPanel.remove(); poolPanel = null; return; }
+    if (!editing) setEditing(true);
+    poolPanel = document.createElement("div"); poolPanel.className = "ed-pool-panel";
+    var h = '<div class="pph"><b>📎 未掲載の素材（この月）' + POOL.length + '件</b><button class="ed-btn" id="pp-close">閉じる</button></div>';
+    if (!POOL.length) h += '<p style="padding:14px;color:#666">この月の未使用素材はありません。</p>';
+    POOL.forEach(function (it, i) {
+      var cc = catColor(it.title + it.body);
+      h += '<div class="ppi"><span class="ppi-tag" style="background:' + cc[1] + '">' + cc[0] + '</span>' +
+        (it.image ? '<img src="' + it.image + '">' : '') +
+        '<div class="ppi-b"><b>' + esc(it.title) + '</b><p>' + esc(it.body) + '</p>' +
+        '<button class="ed-btn ed-primary" data-pi="' + i + '">＋この記事を入れる</button></div></div>';
+    });
+    poolPanel.innerHTML = h; document.body.appendChild(poolPanel);
+    poolPanel.querySelector("#pp-close").addEventListener("click", togglePool);
+    poolPanel.querySelectorAll("[data-pi]").forEach(function (btn) {
+      btn.addEventListener("click", function () { insertPoolItem(POOL[parseInt(btn.getAttribute("data-pi"), 10)]); });
+    });
+  }
+
   // ================= A3 PDF 出力 =================
   function exportPDF() {
     var ok = confirm(
@@ -648,6 +698,7 @@
   on("ed-refit", function () {                              // 「整える」＝自動フィットに戻して充填
     localStorage.removeItem(LSKEY_FITM); fitFill(); flash("紙面を整えました（自動フィット）");
   });
+  on("ed-pool-btn", togglePool);
   activeCols = colsList[0] || null;
   fitFill();   // オートフィット→内部でfitPaperも呼ぶ
 })();
