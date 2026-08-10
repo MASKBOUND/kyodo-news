@@ -34,7 +34,12 @@
     r.readAsDataURL(f);
     picker.value = "";
   });
-  function onImgClick(e) {
+  function onImgClick(e) {          // クリック＝選択（大きさ/切り抜きの対象に）
+    if (!editing) return;
+    e.preventDefault(); e.stopPropagation();
+    selectImg(e.currentTarget);
+  }
+  function onImgDbl(e) {            // ダブルクリック＝写真の差し替え
     if (!editing) return;
     e.preventDefault();
     pendingImg = e.currentTarget;
@@ -122,7 +127,8 @@
       // 画像クリック差し替え
       cols.querySelectorAll("img").forEach(function (img) {
         img.removeEventListener("click", onImgClick);
-        if (on) img.addEventListener("click", onImgClick);
+        img.removeEventListener("dblclick", onImgDbl);
+        if (on) { img.addEventListener("click", onImgClick); img.addEventListener("dblclick", onImgDbl); }
       });
     });
 
@@ -286,8 +292,8 @@
   function getCleanHTML() {
     var clone = document.documentElement.cloneNode(true);
     clone.querySelectorAll("[contenteditable]").forEach(function (n) { n.removeAttribute("contenteditable"); });
-    clone.querySelectorAll(".ed-ghost,.ed-chosen,.ed-textediting,.ed-selected").forEach(function (n) {
-      n.classList.remove("ed-ghost", "ed-chosen", "ed-textediting", "ed-selected");
+    clone.querySelectorAll(".ed-ghost,.ed-chosen,.ed-textediting,.ed-selected,.ed-imgsel").forEach(function (n) {
+      n.classList.remove("ed-ghost", "ed-chosen", "ed-textediting", "ed-selected", "ed-imgsel");
     });
     var body = clone.querySelector("body");
     if (body) body.classList.remove("editing"); // freelayout クラス＆配置は残す
@@ -445,12 +451,47 @@
   function setCols(n) { applyCols(n); localStorage.setItem(LSKEY_COLS, n); fitFill(); }
   function loadCols() { var n = localStorage.getItem(LSKEY_COLS); if (n) applyCols(n); }
 
+  // ===== 文字サイズ手動調整（自動フィットを上書き・ピン留め） =====
+  var LSKEY_FITM = "kyodo_fitm_" + issue;
+  function applyManualFit(v) { pages.forEach(function (p) { p.style.setProperty("--fit", v); }); }
+  function fontStep(delta) {
+    if (delta === 0) { localStorage.removeItem(LSKEY_FITM); fitFill(); flash("文字サイズを自動に戻しました"); return; }
+    var cur = parseFloat(localStorage.getItem(LSKEY_FITM)) ||
+              parseFloat(pages[0] && pages[0].style.getPropertyValue("--fit")) || 1;
+    var v = Math.max(0.6, Math.min(2.2, cur + delta * 0.06));
+    v = Math.round(v * 1000) / 1000;
+    applyManualFit(v); localStorage.setItem(LSKEY_FITM, v);
+    flash("文字サイズ " + Math.round(v * 100) + "%（手動）");
+  }
+
+  // ===== 画像：大きさ・切り抜き位置の編集 =====
+  var curImg = null;
+  function selectImg(img) {
+    if (curImg) curImg.classList.remove("ed-imgsel");
+    curImg = img; if (curImg) curImg.classList.add("ed-imgsel");
+  }
+  function imgAction(kind) {
+    if (!curImg) { flash("先に写真をクリックで選んでください"); return; }
+    var h = parseFloat(getComputedStyle(curImg).height) || 120;
+    if (kind === "bigger") curImg.style.height = Math.round(h * 1.12) + "px";
+    else if (kind === "smaller") curImg.style.height = Math.round(h * 0.9) + "px";
+    else if (kind === "crop") {
+      var order = ["center", "top", "bottom"];
+      var idx = (parseInt(curImg.dataset.crop || "0", 10) + 1) % order.length;
+      curImg.dataset.crop = idx;
+      curImg.style.objectPosition = order[idx];
+      flash("切り抜き位置: " + order[idx]);
+    }
+  }
+
   // ===== オートフィット：本文を拡縮し下端まで充填。ただし溢れ（3列目/はみ出し）は絶対に出さない =====
   function overflowing(cols) {
     return cols.scrollWidth > cols.clientWidth + 4 || cols.scrollHeight > cols.clientHeight + 4;
   }
   function fitFill() {
     if (freeOn) return;
+    var man = parseFloat(localStorage.getItem(LSKEY_FITM));  // 手動指定があれば優先
+    if (!isNaN(man)) { applyManualFit(man); fitPaper(); return; }
     var pel = document.getElementById("paper");
     var savedZoom = pel ? pel.style.zoom : "";
     if (pel) pel.style.zoom = 1;                 // 計測は等倍で
@@ -550,6 +591,12 @@
   });
   document.querySelectorAll("[data-cols]").forEach(function (b) {
     b.addEventListener("click", function () { setCols(b.getAttribute("data-cols")); });
+  });
+  document.querySelectorAll("[data-fs]").forEach(function (b) {
+    b.addEventListener("click", function () { fontStep(parseInt(b.getAttribute("data-fs"), 10)); });
+  });
+  document.querySelectorAll("[data-img]").forEach(function (b) {
+    b.addEventListener("click", function () { imgAction(b.getAttribute("data-img")); });
   });
   loadMargins();
   loadCols();

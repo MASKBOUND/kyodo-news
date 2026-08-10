@@ -14,6 +14,8 @@
 .ed-fmt{ display:flex; align-items:center; gap:4px; font-size:11px; }
 .ed-color{ width:26px; height:22px; padding:0; border:1px solid #cbd3dc; border-radius:4px; background:none; cursor:pointer; }
 .ed-selected{ outline:2px solid #ffcf33 !important; outline-offset:2px; }
+body.editing img{ cursor:pointer; }
+.ed-imgsel{ outline:3px solid #ffcf33 !important; outline-offset:1px; }
 .editbar b{ font-size:13px; }
 .editbar .ed-hint{ font-size:11px; opacity:.85; }
 .editbar .sp{ flex:1; }
