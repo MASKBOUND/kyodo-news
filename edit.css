@@ -6,6 +6,8 @@
 .ed-primary{ background:#2f93a4; color:#fff; border-color:#2f93a4; }
 .ed-primary:hover{ background:#267a89; }
 .ed-danger{ color:#c0392b; border-color:#e2b8b2; }
+.ed-publish{ background:#2e7d32; color:#fff; border-color:#2e7d32; }
+.ed-publish:hover{ background:#256628; }
 
 .editbar{ position:sticky; top:0; z-index:50; display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px;
   background:#123a4a; color:#fff; padding:8px 14px; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }

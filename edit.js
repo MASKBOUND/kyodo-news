@@ -280,28 +280,75 @@
     });
   }
 
-  // ---- クリーンなHTMLを書き出し（編集UIを除去） ----
-  function exportHtml() {
+  // ---- 公開/書き出し用HTML：編集機能は残し、一時状態だけリセット ----
+  function getCleanHTML() {
     var clone = document.documentElement.cloneNode(true);
-    ["#editbar", "#ed-toggle"].forEach(function (sel) {
-      var n = clone.querySelector(sel); if (n) n.remove();
-    });
-    clone.querySelectorAll('script[src*="Sortable"],script[src="edit.js"],link[href="edit.css"]')
-      .forEach(function (n) { n.remove(); });
     clone.querySelectorAll("[contenteditable]").forEach(function (n) { n.removeAttribute("contenteditable"); });
     clone.querySelectorAll(".ed-ghost,.ed-chosen,.ed-textediting,.ed-selected").forEach(function (n) {
       n.classList.remove("ed-ghost", "ed-chosen", "ed-textediting", "ed-selected");
     });
     var body = clone.querySelector("body");
-    if (body) body.classList.remove("editing"); // freelayout クラスは残す（自由配置を保持）
-    var html = "<!doctype html>\n" + clone.outerHTML;
-    var blob = new Blob([html], { type: "text/html" });
+    if (body) body.classList.remove("editing"); // freelayout クラス＆配置は残す
+    var bar = clone.querySelector("#editbar"); if (bar) bar.setAttribute("hidden", "");
+    var tg = clone.querySelector("#ed-toggle"); if (tg) tg.textContent = "✏️ 編集モード";
+    return "<!doctype html>\n" + clone.outerHTML;
+  }
+
+  function exportHtml() {
+    var blob = new Blob([getCleanHTML()], { type: "text/html" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "kyodo_" + issue + ".html";
     a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
     flash("HTMLを書き出しました（index.html として差し替え可）");
+  }
+
+  // ================= 🚀 公開（GitHubへ直接コミット→Pages反映） =================
+  var GH = { owner: "MASKBOUND", repo: "kyodo-news", path: "index.html", branch: "main" };
+  var LSKEY_TOKEN = "kyodo_gh_token";
+  function b64utf8(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function getToken() {
+    var t = localStorage.getItem(LSKEY_TOKEN);
+    if (!t) {
+      t = prompt(
+        "GitHubのトークンを入力してください（初回のみ・この端末に保存）。\n" +
+        "推奨: Fine-grained token を " + GH.owner + "/" + GH.repo + " のみ、Contents=Read and write で発行。\n" +
+        "発行: github.com → Settings → Developer settings → Personal access tokens");
+      if (t) { t = t.trim(); localStorage.setItem(LSKEY_TOKEN, t); }
+    }
+    return t;
+  }
+  function ghHeaders(token) {
+    return { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
+  }
+  function publish() {
+    var token = getToken(); if (!token) return;
+    var api = "https://api.github.com/repos/" + GH.owner + "/" + GH.repo + "/contents/" + GH.path;
+    flash("公開中… GitHubへ送信しています");
+    // 現在のsha取得 → PUT
+    fetch(api + "?ref=" + GH.branch, { headers: ghHeaders(token) })
+      .then(function (r) { return r.status === 404 ? { sha: undefined } : r.json(); })
+      .then(function (info) {
+        var body = {
+          message: "電子版を更新（" + issue + "・ブラウザ編集）",
+          content: b64utf8(getCleanHTML()),
+          branch: GH.branch
+        };
+        if (info && info.sha) body.sha = info.sha;
+        return fetch(api, { method: "PUT", headers: ghHeaders(token), body: JSON.stringify(body) });
+      })
+      .then(function (r) {
+        if (r.ok) { flash("✓ 公開しました！ 30〜60秒ほどで本番サイトに反映されます"); return; }
+        if (r.status === 401 || r.status === 403) {
+          localStorage.removeItem(LSKEY_TOKEN);
+          flash("認証エラー：トークンが無効/権限不足です。保存を消したので、もう一度お試しください");
+        } else {
+          r.json().then(function (e) { flash("公開に失敗: " + (e && e.message ? e.message : r.status)); })
+            .catch(function () { flash("公開に失敗: HTTP " + r.status); });
+        }
+      })
+      .catch(function (e) { flash("通信エラー: " + e.message); });
   }
 
   // ---- 小さな通知 ----
@@ -415,6 +462,7 @@
   on("ed-free", function () { if (freeOn) exitFree(); else enterFree(); });
   on("ed-pdf", exportPDF);
   on("ed-canva", toCanva);
+  on("ed-publish", publish);
   on("fmt-band", fmtBand);
   on("fmt-box", fmtBox);
   on("fmt-clear", fmtClear);
