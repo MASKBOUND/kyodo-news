@@ -293,6 +293,7 @@
     if (body) body.classList.remove("editing"); // freelayout クラス＆配置は残す
     var bar = clone.querySelector("#editbar"); if (bar) bar.setAttribute("hidden", "");
     var tg = clone.querySelector("#ed-toggle"); if (tg) tg.textContent = "✏️ 編集モード";
+    var pp = clone.querySelector("#paper"); if (pp) pp.style.zoom = ""; // 端末依存ズームは焼き込まない（読込時に再計算）
     return "<!doctype html>\n" + clone.outerHTML;
   }
 

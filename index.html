@@ -104,7 +104,8 @@
     html,body{ background:#e9edf2; }
     #paper{ width:297mm; margin:0 auto; }
     .page{ box-shadow:0 3px 20px rgba(0,0,0,.13); margin:0 auto 16px; }
-    .webnav{ position:sticky; top:0; z-index:9; background:#fff; border-bottom:1px solid #ddd;
+    .topbar{ position:sticky; top:0; z-index:50; }
+    .webnav{ background:#fff; border-bottom:1px solid #ddd;
              font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:13px; padding:8px 14px;
              display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
     .webnav a{ color:var(--teal); text-decoration:none; font-weight:700; }
@@ -124,6 +125,7 @@
   }
 </style></head>
 <body data-issue="2026-07">
+<div class="topbar">
 <div class="webnav">📰 協働新聞 電子版 Vol.4<span class="sp"></span>
   <a href="kyodo_2026-07.pdf">PDF版をDL</a>
   <button id="ed-toggle" class="ed-btn" type="button">✏️ 編集モード</button>
@@ -163,6 +165,7 @@
   <button id="ed-reset" class="ed-btn ed-danger" type="button">↺ 破棄</button>
   <button id="ed-done" class="ed-btn" type="button">✓ 終了</button>
 </div>
+</div><!-- /.topbar -->
 
 <div id="paper">
 <!-- ============ P1 表 ============ -->
