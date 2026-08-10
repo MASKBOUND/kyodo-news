@@ -41,6 +41,70 @@
     picker.click();
   }
 
+  // ---- 追加(挿入)する要素のテンプレ ----
+  var PLACEHOLDER_IMG =
+    "data:image/svg+xml;utf8," + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200">' +
+      '<rect width="300" height="200" fill="#eef3f6" stroke="#b9c6d0"/>' +
+      '<text x="150" y="104" font-size="16" fill="#7a8a95" text-anchor="middle" font-family="sans-serif">クリックで画像を選択</text></svg>');
+
+  function makeBlock(type) {
+    var el = document.createElement(type === "divider" ? "hr" : (type === "image" ? "figure" : (type === "box" ? "div" : "article")));
+    if (type === "heading") el.innerHTML = '<h2>新しい見出し</h2><p>ここに本文を入力…</p>';
+    else if (type === "text") el.innerHTML = '<p>ここに本文を入力…</p>';
+    else if (type === "briefs") el.innerHTML = '<h3>小見出し</h3><ul class="briefs"><li>項目を入力…</li><li>項目を入力…</li></ul>';
+    else if (type === "box") { el.className = "box"; el.innerHTML = '<h3>枠のタイトル</h3><p>内容を入力…</p>'; }
+    else if (type === "image") el.innerHTML = '<img src="' + PLACEHOLDER_IMG + '" alt=""><figcaption>キャプションを入力…</figcaption>';
+    else if (type === "divider") el.className = "ed-hr";
+    el.setAttribute("data-ed-new", "1");
+    return el;
+  }
+
+  var activeCols = null; // 最後に触れたページの列。挿入先。
+  function currentCols() { return activeCols || colsList[0]; }
+
+  // URL→QR画像(データURL)。qrcode-generatorライブラリを使用。
+  function makeQR(url) {
+    if (typeof qrcode === "undefined") { flash("QR生成ライブラリの読込に失敗しました"); return null; }
+    var qr = qrcode(0, "M"); qr.addData(url); qr.make();
+    return qr.createDataURL(6, 0); // cellSize, margin
+  }
+  function buildQRBlock(url, label) {
+    var data = makeQR(url); if (!data) return null;
+    var fig = document.createElement("figure");
+    fig.className = "ed-qrblock"; fig.setAttribute("data-ed-new", "1");
+    fig.innerHTML = '<img class="ed-qrimg" src="' + data + '" alt="QR"><figcaption>' +
+      (label || url) + '</figcaption>';
+    return fig;
+  }
+
+  function insertBlock(type) {
+    if (!editing) setEditing(true);
+    var cols = currentCols(); if (!cols) return;
+    if (type === "qr") {
+      var url = prompt("QRコードにするURL（アドレス）を入力してください", "https://");
+      if (!url || url === "https://") return;
+      var label = prompt("QRの下に表示するラベル（空欄可）", "") || "";
+      var block = buildQRBlock(url.trim(), label.trim());
+      if (!block) return;
+      cols.appendChild(block);
+      block.querySelector("figcaption").setAttribute("contenteditable", "true");
+      block.scrollIntoView({ block: "center", behavior: "smooth" });
+      flash("QRを追加しました（" + url.trim() + "）");
+      return;
+    }
+    var el = makeBlock(type);
+    cols.appendChild(el);
+    // 追加要素も編集可能・並べ替え対象に
+    el.querySelectorAll(TEXT_SEL).forEach(function (t) { t.setAttribute("contenteditable", "true"); });
+    var img = el.matches("img") ? el : el.querySelector("img");
+    if (img) { img.addEventListener("click", onImgClick); }
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    if (type === "image" && img) { pendingImg = img; picker.click(); }
+    else { var f = el.querySelector(TEXT_SEL); if (f) { f.focus(); } }
+    flash("要素を追加しました（掴んで位置調整・クリックで編集）");
+  }
+
   // ---- 編集モードのON/OFF ----
   function setEditing(on) {
     editing = on;
@@ -142,4 +206,17 @@
   on("ed-save", save);
   on("ed-export", exportHtml);
   on("ed-reset", reset);
+
+  // 挿入(追加)ボタン
+  Array.prototype.forEach.call(document.querySelectorAll("[data-ins]"), function (btn) {
+    btn.addEventListener("click", function () { insertBlock(btn.getAttribute("data-ins")); });
+  });
+
+  // 挿入先ページ（最後に触れた列）を追従
+  colsList.forEach(function (cols) {
+    ["mousedown", "focusin"].forEach(function (ev) {
+      cols.addEventListener(ev, function () { activeCols = cols; });
+    });
+  });
+  activeCols = colsList[0] || null;
 })();

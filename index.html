@@ -124,12 +124,21 @@
 </div>
 <div id="editbar" class="editbar" hidden>
   <b>編集モード</b>
-  <span class="ed-hint">文字はクリックで修正／記事カードは掴んで並べ替え／画像はクリックで差し替え</span>
+  <span class="ed-insert">
+    <span class="ed-lbl">＋追加:</span>
+    <button class="ed-btn" data-ins="heading" type="button">見出し＋本文</button>
+    <button class="ed-btn" data-ins="text" type="button">本文</button>
+    <button class="ed-btn" data-ins="image" type="button">画像</button>
+    <button class="ed-btn" data-ins="box" type="button">囲み枠</button>
+    <button class="ed-btn" data-ins="briefs" type="button">箇条書き</button>
+    <button class="ed-btn" data-ins="qr" type="button">QR(URL)</button>
+    <button class="ed-btn" data-ins="divider" type="button">区切り線</button>
+  </span>
   <span class="sp"></span>
   <button id="ed-save" class="ed-btn ed-primary" type="button">💾 保存</button>
   <button id="ed-export" class="ed-btn" type="button">⬇ HTML書き出し</button>
-  <button id="ed-reset" class="ed-btn ed-danger" type="button">↺ 変更を破棄</button>
-  <button id="ed-done" class="ed-btn" type="button">✓ 編集終了</button>
+  <button id="ed-reset" class="ed-btn ed-danger" type="button">↺ 破棄</button>
+  <button id="ed-done" class="ed-btn" type="button">✓ 終了</button>
 </div>
 
 <!-- ============ P1 表 ============ -->
@@ -308,5 +317,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="edit.js" defer></script>
 </body></html>

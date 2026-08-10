@@ -28,4 +28,15 @@ body.editing img:hover{ outline:2px solid #ea5a2d; outline-offset:2px; }
 /* 保存済みバッジ */
 #ed-status{ font-size:11px; opacity:.9; }
 
-@media print{ .editbar, .ed-btn, #ed-toggle{ display:none !important; } }
+/* 挿入パレット */
+.ed-insert{ display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.ed-insert .ed-lbl{ font-size:11px; opacity:.85; }
+.ed-insert .ed-btn{ font-size:11px; padding:4px 8px; }
+/* 追加した要素・QR・区切り線 */
+[data-ed-new]{ outline:1px dashed rgba(47,147,164,.5); outline-offset:2px; }
+.ed-hr{ border:0; border-top:2px dashed #b9c6d0; margin:3mm 0; break-inside:avoid; }
+.ed-qrblock{ break-inside:avoid; text-align:center; margin:0 0 3mm; }
+.ed-qrblock .ed-qrimg{ width:24mm; height:24mm; display:inline-block; image-rendering:pixelated; }
+.ed-qrblock figcaption{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:7.5pt; color:#555; word-break:break-all; }
+
+@media print{ .editbar, .ed-btn, #ed-toggle{ display:none !important; } [data-ed-new]{ outline:none; } }
