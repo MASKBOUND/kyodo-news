@@ -308,7 +308,9 @@
   }
 
   // ================= 🚀 公開（GitHubへ直接コミット→Pages反映） =================
-  var GH = { owner: "MASKBOUND", repo: "kyodo-news", path: "index.html", branch: "main" };
+  // 公開先パスは開いているページから自動判定（各号は /kyodo-news/{month}/index.html）
+  var _p = location.pathname.replace(/^\/kyodo-news\//, "").replace(/index\.html$/, "").replace(/\/$/, "");
+  var GH = { owner: "MASKBOUND", repo: "kyodo-news", path: (_p ? _p + "/" : "") + "index.html", branch: "main" };
   var LSKEY_TOKEN = "kyodo_gh_token";
   function b64utf8(str) { return btoa(unescape(encodeURIComponent(str))); }
   function getToken() {

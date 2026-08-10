@@ -1,0 +1,60 @@
+/* 軽量エディットモードのUI（画面のみ。印刷/PDFでは非表示） */
+.ed-btn{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:12px;
+  border:1px solid #cbd3dc; background:#fff; color:#2f93a4; font-weight:700;
+  padding:5px 10px; border-radius:6px; cursor:pointer; }
+.ed-btn:hover{ background:#f2fafc; }
+.ed-primary{ background:#2f93a4; color:#fff; border-color:#2f93a4; }
+.ed-primary:hover{ background:#267a89; }
+.ed-danger{ color:#c0392b; border-color:#e2b8b2; }
+.ed-publish{ background:#2e7d32; color:#fff; border-color:#2e7d32; }
+.ed-publish:hover{ background:#256628; }
+
+.editbar{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px;
+  background:#123a4a; color:#fff; padding:8px 14px; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }
+.ed-fmt{ display:flex; align-items:center; gap:4px; font-size:11px; }
+.ed-color{ width:26px; height:22px; padding:0; border:1px solid #cbd3dc; border-radius:4px; background:none; cursor:pointer; }
+.ed-selected{ outline:2px solid #ffcf33 !important; outline-offset:2px; }
+.editbar b{ font-size:13px; }
+.editbar .ed-hint{ font-size:11px; opacity:.85; }
+.editbar .sp{ flex:1; }
+.editbar[hidden]{ display:none; }
+.ed-margin{ display:flex; align-items:center; gap:3px; font-size:11px; opacity:.95; }
+.ed-margin small{ opacity:.7; }
+.ed-num{ width:34px; font-size:11px; padding:2px 3px; border:1px solid #cbd3dc; border-radius:4px; text-align:center; }
+
+/* 編集中の視覚フィードバック */
+body.editing [contenteditable="true"]:hover{ outline:1px dashed #2f93a4; outline-offset:2px; }
+body.editing [contenteditable="true"]:focus{ outline:2px solid #2f93a4; outline-offset:2px; background:#f0fbfd; }
+body.editing .cols > *{ position:relative; }
+body.editing .cols > *:hover{ box-shadow:0 0 0 2px rgba(47,147,164,.35); }
+body.editing img{ cursor:pointer; }
+body.editing img:hover{ outline:2px solid #ea5a2d; outline-offset:2px; }
+.ed-ghost{ opacity:.4; }
+.ed-chosen{ box-shadow:0 0 0 2px #ea5a2d !important; }
+.ed-drag-handle{ cursor:grab; }
+
+/* 保存済みバッジ */
+#ed-status{ font-size:11px; opacity:.9; }
+
+/* 挿入パレット */
+.ed-insert{ display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.ed-insert .ed-lbl{ font-size:11px; opacity:.85; }
+.ed-insert .ed-btn{ font-size:11px; padding:4px 8px; }
+/* 追加した要素・QR・区切り線 */
+[data-ed-new]{ outline:1px dashed rgba(47,147,164,.5); outline-offset:2px; }
+.ed-hr{ border:0; border-top:2px dashed #b9c6d0; margin:3mm 0; break-inside:avoid; }
+.ed-qrblock{ break-inside:avoid; text-align:center; margin:0 0 3mm; }
+.ed-qrblock .ed-qrimg{ width:24mm; height:24mm; display:inline-block; image-rendering:pixelated; }
+.ed-qrblock figcaption{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:7.5pt; color:#555; word-break:break-all; }
+
+/* 自由配置モード */
+body.freelayout .cols > *{ cursor:move; touch-action:none; outline:1px solid rgba(47,147,164,.4); outline-offset:0; }
+body.freelayout .cols > *:hover{ outline:2px solid #2f93a4; box-shadow:0 2px 10px rgba(0,0,0,.12); background:#fff; }
+body.freelayout .cols > *.ed-textediting{ cursor:text; outline:2px solid #ea5a2d; }
+body.freelayout .cols{ background:repeating-linear-gradient(0deg,transparent,transparent 9mm,rgba(47,147,164,.06) 9mm,rgba(47,147,164,.06) 10mm); }
+
+@media print{
+  .editbar, .ed-btn, #ed-toggle{ display:none !important; }
+  [data-ed-new]{ outline:none; }
+  body.freelayout .cols, body.freelayout .cols > *{ outline:none !important; box-shadow:none !important; background:none !important; }
+}
