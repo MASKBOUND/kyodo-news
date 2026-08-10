@@ -119,7 +119,17 @@
     .kanji{ font-size:20pt; }
     .grant{ flex-wrap:wrap; }
   }
-  @media print { .webnav{ display:none; } }
+  @media print {
+    html,body{ margin:0 !important; padding:0 !important; background:#fff !important; }
+    .webnav{ display:none !important; }
+    /* 画面用の装飾/サイズを打ち消し、A3固定・はみ出し防止 */
+    .page{ width:297mm !important; height:420mm !important; min-height:0 !important; margin:0 !important;
+            box-shadow:none !important; border-radius:0 !important; overflow:hidden !important;
+            break-after:page; page-break-after:always; break-inside:avoid; }
+    .page:last-child{ break-after:auto; page-break-after:auto; }
+    .cols{ column-count:3 !important; height:calc(420mm - var(--mt) - var(--mb) - 30mm - 14mm) !important; }
+    .page.back .cols{ height:calc(420mm - var(--mt) - var(--mb) - 21mm - 10mm) !important; }
+  }
 </style></head>
 <body data-issue="2026-07">
 <div class="webnav">📰 協働新聞 電子版 Vol.4<span class="sp"></span>
