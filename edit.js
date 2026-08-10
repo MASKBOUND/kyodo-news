@@ -148,8 +148,9 @@
   // ---- 保存(localStorage) ----
   function save() {
     try {
-      var data = { cols: colsList.map(function (c) { return c.innerHTML; }), at: new Date().toISOString() };
+      var data = { cols: colsList.map(function (c) { return c.innerHTML; }), free: freeOn, at: new Date().toISOString() };
       localStorage.setItem(LSKEY, JSON.stringify(data));
+      if (freeOn) saveFree();
       flash("この端末に保存しました ✓");
     } catch (e) {
       flash("保存に失敗（画像が大きすぎる可能性）。HTML書き出しをお使いください");
@@ -163,6 +164,121 @@
     location.reload();
   }
 
+  // ================= 自由配置モード（interact.js） =================
+  var LSKEY_FREE = "kyodo_free_" + issue;
+  var freeOn = false, interactBound = false;
+
+  function setFreeLabel() {
+    var b = document.getElementById("ed-free");
+    if (!b) return;
+    b.textContent = freeOn ? "🧩 自由配置ON" : "🧩 自由配置OFF";
+    b.classList.toggle("ed-primary", freeOn);
+  }
+
+  function enterFree() {
+    if (!editing) setEditing(true);
+    // 並べ替え(Sortable)は自由配置と競合するので停止
+    sortables.forEach(function (s) { try { s.destroy(); } catch (e) {} });
+    sortables = [];
+    colsList.forEach(function (cols) {
+      var children = Array.prototype.slice.call(cols.children);
+      var crect = cols.getBoundingClientRect();
+      var boxes = children.map(function (ch) {           // 先に全要素を計測
+        var r = ch.getBoundingClientRect();
+        return { l: r.left - crect.left, t: r.top - crect.top, w: r.width };
+      });
+      children.forEach(function (ch, i) {                 // その後で絶対配置へ
+        if (!ch.dataset.edId) ch.dataset.edId = "b" + i;
+        ch.style.left = boxes[i].l + "px";
+        ch.style.top = boxes[i].t + "px";
+        ch.style.width = boxes[i].w + "px";
+      });
+    });
+    document.body.classList.add("freelayout");
+    applySavedFree();
+    bindInteract();
+    freeOn = true; setFreeLabel();
+    flash("自由配置ON：掴んで移動／角でリサイズ／ダブルクリックで文字編集");
+  }
+
+  function exitFree() {
+    document.body.classList.remove("freelayout");
+    colsList.forEach(function (cols) {
+      Array.prototype.slice.call(cols.children).forEach(function (ch) {
+        ch.style.left = ch.style.top = ch.style.width = ch.style.height = "";
+        ch.classList.remove("ed-textediting");
+      });
+    });
+    freeOn = false; setFreeLabel();
+    if (editing) setEditing(true); // 並べ替えを再有効化
+  }
+
+  function bindInteract() {
+    if (interactBound) return;
+    if (typeof interact === "undefined") { flash("自由配置ライブラリの読込に失敗しました"); return; }
+    interactBound = true;
+    interact("body.freelayout .cols > *")
+      .draggable({
+        ignoreFrom: ".ed-textediting,[contenteditable=true]",
+        listeners: { move: function (e) {
+          var t = e.target;
+          t.style.left = (parseFloat(t.style.left) || 0) + e.dx + "px";
+          t.style.top = (parseFloat(t.style.top) || 0) + e.dy + "px";
+        } }
+      })
+      .resizable({
+        edges: { left: true, right: true, top: true, bottom: true },
+        ignoreFrom: ".ed-textediting",
+        listeners: { move: function (e) {
+          var t = e.target;
+          t.style.width = e.rect.width + "px";
+          t.style.height = e.rect.height + "px";
+          t.style.left = (parseFloat(t.style.left) || 0) + e.deltaRect.left + "px";
+          t.style.top = (parseFloat(t.style.top) || 0) + e.deltaRect.top + "px";
+        } }
+      });
+    // ダブルクリックで文字編集（編集中はドラッグ無効）
+    colsList.forEach(function (cols) {
+      cols.addEventListener("dblclick", function (e) {
+        if (!freeOn) return;
+        var block = e.target.closest(".cols > *"); if (!block) return;
+        block.classList.add("ed-textediting");
+        block.querySelectorAll(TEXT_SEL).forEach(function (t) { t.setAttribute("contenteditable", "true"); });
+        var tgt = (e.target.closest && e.target.closest(TEXT_SEL)) || block.querySelector(TEXT_SEL);
+        if (tgt) tgt.focus();
+      });
+    });
+    document.addEventListener("focusout", function (e) {
+      var block = e.target && e.target.closest && e.target.closest(".ed-textediting");
+      if (block) setTimeout(function () {
+        if (!block.contains(document.activeElement)) block.classList.remove("ed-textediting");
+      }, 60);
+    });
+  }
+
+  function saveFree() {
+    var all = {};
+    colsList.forEach(function (cols, ci) {
+      Array.prototype.slice.call(cols.children).forEach(function (ch) {
+        if (!ch.dataset.edId) return;
+        all[ci + ":" + ch.dataset.edId] = { l: ch.style.left, t: ch.style.top, w: ch.style.width, h: ch.style.height };
+      });
+    });
+    localStorage.setItem(LSKEY_FREE, JSON.stringify(all));
+  }
+  function applySavedFree() {
+    var saved; try { saved = JSON.parse(localStorage.getItem(LSKEY_FREE) || "null"); } catch (e) { return; }
+    if (!saved) return;
+    colsList.forEach(function (cols, ci) {
+      Array.prototype.slice.call(cols.children).forEach(function (ch) {
+        var v = saved[ci + ":" + ch.dataset.edId];
+        if (!v) return;
+        if (v.l) ch.style.left = v.l; if (v.t) ch.style.top = v.t;
+        if (v.w) ch.style.width = v.w; if (v.h) ch.style.height = v.h;
+      });
+    });
+  }
+
   // ---- クリーンなHTMLを書き出し（編集UIを除去） ----
   function exportHtml() {
     var clone = document.documentElement.cloneNode(true);
@@ -172,11 +288,11 @@
     clone.querySelectorAll('script[src*="Sortable"],script[src="edit.js"],link[href="edit.css"]')
       .forEach(function (n) { n.remove(); });
     clone.querySelectorAll("[contenteditable]").forEach(function (n) { n.removeAttribute("contenteditable"); });
-    clone.querySelectorAll(".ed-ghost,.ed-chosen").forEach(function (n) {
-      n.classList.remove("ed-ghost", "ed-chosen");
+    clone.querySelectorAll(".ed-ghost,.ed-chosen,.ed-textediting").forEach(function (n) {
+      n.classList.remove("ed-ghost", "ed-chosen", "ed-textediting");
     });
     var body = clone.querySelector("body");
-    if (body) body.classList.remove("editing");
+    if (body) body.classList.remove("editing"); // freelayout クラスは残す（自由配置を保持）
     var html = "<!doctype html>\n" + clone.outerHTML;
     var blob = new Blob([html], { type: "text/html" });
     var a = document.createElement("a");
@@ -206,6 +322,7 @@
   on("ed-save", save);
   on("ed-export", exportHtml);
   on("ed-reset", reset);
+  on("ed-free", function () { if (freeOn) exitFree(); else enterFree(); });
 
   // 挿入(追加)ボタン
   Array.prototype.forEach.call(document.querySelectorAll("[data-ins]"), function (btn) {

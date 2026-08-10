@@ -24,7 +24,10 @@
   .issue{ text-align:right; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9.5pt; line-height:1.5; }
   .issue .vol{ font-size:13pt; font-weight:800; color:var(--navy); }
   .cols{ column-count:3; column-gap:6mm; column-rule:1px solid #bbb; margin-top:5mm;
-         height:calc(420mm - 10mm - 10mm - 30mm - 14mm); }
+         height:calc(420mm - 10mm - 10mm - 30mm - 14mm); position:relative; }
+  /* 自由配置モード：各ブロックを絶対配置にして個別ドラッグ/リサイズ */
+  body.freelayout .cols{ column-count:1; column-rule:none; }
+  body.freelayout .cols > *{ position:absolute; margin:0 !important; box-sizing:border-box; }
   /* 裏面ヘッダー（スリム） */
   .backhead{ display:flex; align-items:center; gap:4mm; border-bottom:3px solid var(--accent); padding-bottom:3mm; }
   .bh-logo{ height:15mm; width:auto; }
@@ -134,6 +137,7 @@
     <button class="ed-btn" data-ins="qr" type="button">QR(URL)</button>
     <button class="ed-btn" data-ins="divider" type="button">区切り線</button>
   </span>
+  <button id="ed-free" class="ed-btn" type="button">🧩 自由配置OFF</button>
   <span class="sp"></span>
   <button id="ed-save" class="ed-btn ed-primary" type="button">💾 保存</button>
   <button id="ed-export" class="ed-btn" type="button">⬇ HTML書き出し</button>
@@ -318,5 +322,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js"></script>
 <script src="edit.js" defer></script>
 </body></html>
