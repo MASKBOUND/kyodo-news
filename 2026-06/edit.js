@@ -445,7 +445,10 @@
   function setCols(n) { applyCols(n); localStorage.setItem(LSKEY_COLS, n); fitFill(); }
   function loadCols() { var n = localStorage.getItem(LSKEY_COLS); if (n) applyCols(n); }
 
-  // ===== オートフィット：内容量に応じ本文を拡縮し、下端まで充填（下の空きを無くす） =====
+  // ===== オートフィット：本文を拡縮し下端まで充填。ただし溢れ（3列目/はみ出し）は絶対に出さない =====
+  function overflowing(cols) {
+    return cols.scrollWidth > cols.clientWidth + 4 || cols.scrollHeight > cols.clientHeight + 4;
+  }
   function fitFill() {
     if (freeOn) return;
     var pel = document.getElementById("paper");
@@ -453,20 +456,32 @@
     if (pel) pel.style.zoom = 1;                 // 計測は等倍で
     pages.forEach(function (p) {
       var cols = p.querySelector(".cols"); if (!cols) return;
-      var N = parseInt(getComputedStyle(p).getPropertyValue("--cols")) || 3;
+      var N = parseInt(getComputedStyle(p).getPropertyValue("--cols")) || 2;
       var fixedH = cols.clientHeight;
+      // ① 単一列高から初期推定（やや控えめ0.92）
       var fit = parseFloat(p.style.getPropertyValue("--fit")) || 1;
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 2; i++) {
         p.style.setProperty("--fit", fit);
         var pc = cols.style.columnCount, ph = cols.style.height;
         cols.style.columnCount = "1"; cols.style.height = "auto";
         var T = cols.scrollHeight;
         cols.style.columnCount = pc; cols.style.height = ph;
         if (T <= 0) break;
-        fit = fit * (fixedH * N * 0.98) / T;
-        fit = Math.max(0.7, Math.min(1.8, fit));
+        fit = Math.max(0.7, Math.min(1.8, fit * (fixedH * N * 0.92) / T));
       }
-      p.style.setProperty("--fit", fit.toFixed(3));
+      p.style.setProperty("--fit", fit);
+      // ② 実レイアウトで溢れていたら、収まるまで3%ずつ縮小
+      for (var g = 0; g < 20 && overflowing(cols) && fit > 0.7; g++) {
+        fit = Math.max(0.7, fit - 0.03);
+        p.style.setProperty("--fit", fit);
+      }
+      // ③ まだ空きがあり溢れていなければ、溢れ直前まで1.5%ずつ拡大
+      for (var h = 0; h < 20 && !overflowing(cols) && fit < 1.8; h++) {
+        p.style.setProperty("--fit", Math.min(1.8, fit + 0.015));
+        if (overflowing(cols)) { p.style.setProperty("--fit", fit); break; }
+        fit = Math.min(1.8, fit + 0.015);
+      }
+      p.style.setProperty("--fit", (Math.round(fit * 1000) / 1000));
     });
     if (pel) pel.style.zoom = savedZoom || "";
     fitPaper();
