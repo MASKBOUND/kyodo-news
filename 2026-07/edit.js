@@ -472,6 +472,20 @@
     if (curImg) curImg.classList.remove("ed-imgsel");
     curImg = img; if (curImg) curImg.classList.add("ed-imgsel");
   }
+  // ===== 記事を「大きく(特集)」/「標準」に =====
+  function curArticle() {
+    var el = (selEl && selEl.closest && selEl.closest("article")) ||
+             (curImg && curImg.closest && curImg.closest("article"));
+    return el;
+  }
+  function featArticle(on) {
+    var a = curArticle();
+    if (!a) { flash("先に大きくしたい記事をクリックで選んでください"); return; }
+    a.classList.toggle("hero-article", on === "on");
+    fitFill();
+    flash(on === "on" ? "記事を特集(大)にしました" : "記事を標準に戻しました");
+  }
+
   function imgAction(kind) {
     if (!curImg) { flash("先に写真をクリックで選んでください"); return; }
     var h = parseFloat(getComputedStyle(curImg).height) || 120;
@@ -609,6 +623,9 @@
   });
   document.querySelectorAll("[data-img]").forEach(function (b) {
     b.addEventListener("click", function () { imgAction(b.getAttribute("data-img")); });
+  });
+  document.querySelectorAll("[data-feat]").forEach(function (b) {
+    b.addEventListener("click", function () { featArticle(b.getAttribute("data-feat")); });
   });
   loadMargins();
   loadCols();

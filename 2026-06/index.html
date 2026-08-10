@@ -56,6 +56,10 @@
   .art h2, .art h3{ border-left:4px solid var(--c,#5c9a2f); padding-left:2.5mm; }
   .hero-article h2{ font-size:calc(19pt * var(--fit,1)); line-height:1.2; }
   .hero-article{ border-bottom:2px solid var(--c,#5c9a2f); }
+  /* 特集(大きく)＝写真を大きく全幅・本文も少し大きく */
+  .hero-article > figure{ float:none; width:100%; margin:0 0 2mm; }
+  .hero-article > figure img{ max-height:calc(62mm * var(--fit,1)); object-fit:cover; }
+  .hero-article p{ font-size:calc(10.2pt * var(--fit,1)); }
   .lead-kicker{ column-span:all; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; color:var(--accent); font-weight:700; font-size:calc(11pt * var(--fit,1)); margin-bottom:1mm; }
   .lead-headline{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(26pt * var(--fit,1)); line-height:1.15; letter-spacing:.02em; margin:0 0 2mm; column-span:all; border-bottom:2px solid var(--accent); padding-bottom:2mm; }
   h2{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(15pt * var(--fit,1)); line-height:1.25; margin:0 0 2mm; border-left:5px solid var(--navy); padding-left:2.5mm; }
@@ -181,6 +185,10 @@
     <button class="ed-btn" data-img="smaller" type="button">小</button>
     <button class="ed-btn" data-img="bigger" type="button">大</button>
     <button class="ed-btn" data-img="crop" type="button">切抜↕</button>
+  </span>
+  <span class="ed-cols">記事
+    <button class="ed-btn" data-feat="on" type="button">大きく(特集)</button>
+    <button class="ed-btn" data-feat="off" type="button">標準</button>
   </span>
   <span class="ed-margin">余白<small>mm</small>
     上<input type="number" id="mg-t" class="ed-num" min="0" max="40" step="1">
