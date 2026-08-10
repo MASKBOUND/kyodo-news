@@ -178,6 +178,7 @@
 
   function enterFree() {
     if (!editing) setEditing(true);
+    var pel = document.getElementById("paper"); if (pel) pel.style.zoom = 1; // 等倍で計測・ドラッグ
     // 並べ替え(Sortable)は自由配置と競合するので停止
     sortables.forEach(function (s) { try { s.destroy(); } catch (e) {} });
     sortables = [];
@@ -212,6 +213,7 @@
     });
     freeOn = false; setFreeLabel();
     if (editing) setEditing(true); // 並べ替えを再有効化
+    fitPaper();                    // 画面ズームを復帰
   }
 
   function bindInteract() {
@@ -460,6 +462,15 @@
     );
   }
 
+  // ================= 画面WYSIWYGズーム（実物A3を画面幅に合わせて縮小表示） =================
+  function fitPaper() {
+    var el = document.getElementById("paper"); if (!el) return;
+    if (freeOn) { el.style.zoom = 1; return; }   // 自由配置中は等倍（ドラッグ座標のズレ防止）
+    var pageW = 297 * 96 / 25.4;                  // 297mm ≈ 1122.5px
+    el.style.zoom = Math.min(1, (window.innerWidth - 20) / pageW);
+  }
+  window.addEventListener("resize", fitPaper);
+
   // ---- ボタン配線 ----
   function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener("click", fn); }
   on("ed-toggle", function () { setEditing(!editing); });
@@ -495,4 +506,5 @@
     });
   });
   activeCols = colsList[0] || null;
+  fitPaper();
 })();

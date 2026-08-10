@@ -24,7 +24,7 @@
   .brand .sub{ font-size:9pt; color:#555; }
   .issue{ text-align:right; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9.5pt; line-height:1.5; }
   .issue .vol{ font-size:13pt; font-weight:800; color:var(--navy); }
-  .cols{ column-count:3; column-gap:6mm; column-rule:1px solid #bbb; margin-top:5mm;
+  .cols{ column-count:3; column-gap:6mm; column-rule:1px solid #bbb; margin-top:5mm; column-fill:balance;
          height:calc(420mm - var(--mt) - var(--mb) - 30mm - 14mm); position:relative; }
   /* 自由配置モード：各ブロックを絶対配置にして個別ドラッグ/リサイズ */
   body.freelayout .cols{ column-count:1; column-rule:none; }
@@ -99,28 +99,20 @@
   .jiji{ margin:0; padding:0; }
   .ph{ color:#b04a2a; } /* 差し替え待ちの目印(任意) */
   /* ===== 画面(Web)表示：スマホ対応。印刷(PDF)はA3のまま ===== */
+  /* 画面は実物A3のまま縮小表示(WYSIWYG)。#paperのzoomはedit.jsが画面幅に合わせて設定 */
   @media screen {
     html,body{ background:#e9edf2; }
-    .page{ width:min(96vw,880px); height:auto; min-height:0; margin:16px auto;
-            box-shadow:0 3px 20px rgba(0,0,0,.13); border-radius:5px; page-break-after:auto; }
-    .cols{ column-count:2; height:auto; margin-top:14px; }
-    .page.back .cols{ height:auto; }
+    #paper{ width:297mm; margin:0 auto; }
+    .page{ box-shadow:0 3px 20px rgba(0,0,0,.13); margin:0 auto 16px; }
     .webnav{ position:sticky; top:0; z-index:9; background:#fff; border-bottom:1px solid #ddd;
              font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:13px; padding:8px 14px;
-             display:flex; gap:14px; align-items:center; }
+             display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
     .webnav a{ color:var(--teal); text-decoration:none; font-weight:700; }
     .webnav .sp{ flex:1; }
   }
-  @media screen and (max-width:680px){
-    .cols{ column-count:1; }
-    .masthead{ flex-wrap:wrap; gap:8px; }
-    .issue{ text-align:left; }
-    .lead-headline{ font-size:22pt; }
-    .kanji{ font-size:20pt; }
-    .grant{ flex-wrap:wrap; }
-  }
   @media print {
     html,body{ margin:0 !important; padding:0 !important; background:#fff !important; }
+    #paper{ zoom:1 !important; width:auto !important; margin:0 !important; }
     .webnav{ display:none !important; }
     /* 画面用の装飾/サイズを打ち消し、A3固定・はみ出し防止 */
     .page{ width:297mm !important; height:420mm !important; min-height:0 !important; margin:0 !important;
@@ -172,6 +164,7 @@
   <button id="ed-done" class="ed-btn" type="button">✓ 終了</button>
 </div>
 
+<div id="paper">
 <!-- ============ P1 表 ============ -->
 <div class="page" data-document-role="page" data-label="P1 表 What's U p?">
   <div class="masthead">
@@ -372,6 +365,7 @@
     </footer>
   </div>
 </div>
+</div><!-- /#paper -->
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
