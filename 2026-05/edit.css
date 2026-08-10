@@ -18,6 +18,8 @@
 .editbar .ed-hint{ font-size:11px; opacity:.85; }
 .editbar .sp{ flex:1; }
 .editbar[hidden]{ display:none; }
+.ed-cols{ display:flex; align-items:center; gap:3px; font-size:11px; opacity:.95; }
+.ed-cols .ed-btn{ padding:3px 8px; }
 .ed-margin{ display:flex; align-items:center; gap:3px; font-size:11px; opacity:.95; }
 .ed-margin small{ opacity:.7; }
 .ed-num{ width:34px; font-size:11px; padding:2px 3px; border:1px solid #cbd3dc; border-radius:4px; text-align:center; }

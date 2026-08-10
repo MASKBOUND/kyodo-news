@@ -213,7 +213,7 @@
     });
     freeOn = false; setFreeLabel();
     if (editing) setEditing(true); // 並べ替えを再有効化
-    fitPaper();                    // 画面ズームを復帰
+    fitFill();                     // 再フィット＋画面ズーム復帰
   }
 
   function bindInteract() {
@@ -434,6 +434,44 @@
   function onBg() { if (needSel()) selEl.style.background = document.getElementById("fmt-bg").value; }
   function onFg() { if (needSel()) selEl.style.color = document.getElementById("fmt-fg").value; }
 
+  // ================= 段組(2/3) =================
+  var LSKEY_COLS = "kyodo_cols_" + issue;
+  function applyCols(n) {
+    pages.forEach(function (p) { p.style.setProperty("--cols", n); });
+    document.querySelectorAll("[data-cols]").forEach(function (b) {
+      b.classList.toggle("ed-primary", b.getAttribute("data-cols") === String(n));
+    });
+  }
+  function setCols(n) { applyCols(n); localStorage.setItem(LSKEY_COLS, n); fitFill(); }
+  function loadCols() { var n = localStorage.getItem(LSKEY_COLS); if (n) applyCols(n); }
+
+  // ===== オートフィット：内容量に応じ本文を拡縮し、下端まで充填（下の空きを無くす） =====
+  function fitFill() {
+    if (freeOn) return;
+    var pel = document.getElementById("paper");
+    var savedZoom = pel ? pel.style.zoom : "";
+    if (pel) pel.style.zoom = 1;                 // 計測は等倍で
+    pages.forEach(function (p) {
+      var cols = p.querySelector(".cols"); if (!cols) return;
+      var N = parseInt(getComputedStyle(p).getPropertyValue("--cols")) || 3;
+      var fixedH = cols.clientHeight;
+      var fit = parseFloat(p.style.getPropertyValue("--fit")) || 1;
+      for (var i = 0; i < 3; i++) {
+        p.style.setProperty("--fit", fit);
+        var pc = cols.style.columnCount, ph = cols.style.height;
+        cols.style.columnCount = "1"; cols.style.height = "auto";
+        var T = cols.scrollHeight;
+        cols.style.columnCount = pc; cols.style.height = ph;
+        if (T <= 0) break;
+        fit = fit * (fixedH * N * 0.98) / T;
+        fit = Math.max(0.7, Math.min(1.8, fit));
+      }
+      p.style.setProperty("--fit", fit.toFixed(3));
+    });
+    if (pel) pel.style.zoom = savedZoom || "";
+    fitPaper();
+  }
+
   // ================= A3 PDF 出力 =================
   function exportPDF() {
     var ok = confirm(
@@ -495,7 +533,11 @@
     var el = document.getElementById("mg-" + k);
     if (el) el.addEventListener("input", onMarginInput);
   });
+  document.querySelectorAll("[data-cols]").forEach(function (b) {
+    b.addEventListener("click", function () { setCols(b.getAttribute("data-cols")); });
+  });
   loadMargins();
+  loadCols();
 
   // 挿入(追加)ボタン
   Array.prototype.forEach.call(document.querySelectorAll("[data-ins]"), function (btn) {
@@ -509,5 +551,5 @@
     });
   });
   activeCols = colsList[0] || null;
-  fitPaper();
+  fitFill();   // オートフィット→内部でfitPaperも呼ぶ
 })();

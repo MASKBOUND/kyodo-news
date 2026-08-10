@@ -10,21 +10,21 @@
   :root{ --ink:#2a2a2a; --accent:#ea5a2d; --accent2:#f2934a; --navy:#2f93a4; --teal:#2f93a4; --green:#7fc069; }
   *{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   html,body{ margin:0; }
-  .page{ --mt:10mm; --mb:10mm; --ml:9mm; --mr:9mm;
+  .page{ --mt:10mm; --mb:10mm; --ml:9mm; --mr:9mm; --cols:2;
          width:297mm; height:420mm; padding:var(--mt) var(--mr) var(--mb) var(--ml); background:#fff; color:var(--ink);
          font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif; page-break-after:always; position:relative; }
   .page:last-child{ page-break-after:auto; }
   .masthead{ display:flex; align-items:flex-end; justify-content:space-between; border-bottom:4px double var(--ink); padding-bottom:4mm; }
   .logo{ display:flex; align-items:center; gap:5mm; }
-  .kanji{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:30pt; letter-spacing:.05em; }
+  .kanji{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(30pt * var(--fit,1)); letter-spacing:.05em; }
   .logo-img{ height:22mm; width:auto; display:block; }
   .title-img{ height:20mm; width:auto; display:block; }
   .brand{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }
-  .brand .big{ font-size:24pt; font-weight:800; color:var(--accent); line-height:1; }
-  .brand .sub{ font-size:9pt; color:#555; }
-  .issue{ text-align:right; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9.5pt; line-height:1.5; }
-  .issue .vol{ font-size:13pt; font-weight:800; color:var(--navy); }
-  .cols{ column-count:3; column-gap:6mm; column-rule:1px solid #bbb; margin-top:5mm; column-fill:balance;
+  .brand .big{ font-size:calc(24pt * var(--fit,1)); font-weight:800; color:var(--accent); line-height:1; }
+  .brand .sub{ font-size:calc(9pt * var(--fit,1)); color:#555; }
+  .issue{ text-align:right; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(9.5pt * var(--fit,1)); line-height:1.5; }
+  .issue .vol{ font-size:calc(13pt * var(--fit,1)); font-weight:800; color:var(--navy); }
+  .cols{ column-count:var(--cols,3); column-gap:6mm; column-rule:1px solid #bbb; margin-top:5mm; column-fill:balance;
          height:calc(420mm - var(--mt) - var(--mb) - 30mm - 14mm); position:relative; }
   /* 自由配置モード：各ブロックを絶対配置にして個別ドラッグ/リサイズ */
   body.freelayout .cols{ column-count:1; column-rule:none; }
@@ -32,69 +32,69 @@
   /* 裏面ヘッダー（スリム） */
   .backhead{ display:flex; align-items:center; gap:4mm; border-bottom:3px solid var(--accent); padding-bottom:3mm; }
   .bh-logo{ height:15mm; width:auto; }
-  .bh-kanji{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:20pt; }
+  .bh-kanji{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(20pt * var(--fit,1)); }
   .bh-text{ flex:1; }
-  .bh-main{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:16pt; color:var(--navy); line-height:1.1; }
-  .bh-sub{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9pt; color:#666; margin-top:1mm; }
-  .bh-meta{ text-align:right; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9pt; color:#444; line-height:1.5; }
+  .bh-main{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(16pt * var(--fit,1)); color:var(--navy); line-height:1.1; }
+  .bh-sub{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(9pt * var(--fit,1)); color:#666; margin-top:1mm; }
+  .bh-meta{ text-align:right; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(9pt * var(--fit,1)); color:#444; line-height:1.5; }
   .page.back .cols{ height:calc(420mm - var(--mt) - var(--mb) - 21mm - 10mm); }
   article{ break-inside:avoid; margin-bottom:4mm; padding-bottom:3mm; border-bottom:1px solid #ccc; }
-  .lead-kicker{ column-span:all; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; color:var(--accent); font-weight:700; font-size:11pt; margin-bottom:1mm; }
-  .lead-headline{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:26pt; line-height:1.15; letter-spacing:.02em; margin:0 0 2mm; column-span:all; border-bottom:2px solid var(--accent); padding-bottom:2mm; }
-  h2{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:15pt; line-height:1.25; margin:0 0 2mm; border-left:5px solid var(--navy); padding-left:2.5mm; }
-  h3{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:11pt; margin:0 0 1.5mm; }
-  p{ font-size:9.3pt; line-height:1.65; text-align:justify; margin:0 0 1.5mm; }
+  .lead-kicker{ column-span:all; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; color:var(--accent); font-weight:700; font-size:calc(11pt * var(--fit,1)); margin-bottom:1mm; }
+  .lead-headline{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(26pt * var(--fit,1)); line-height:1.15; letter-spacing:.02em; margin:0 0 2mm; column-span:all; border-bottom:2px solid var(--accent); padding-bottom:2mm; }
+  h2{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(15pt * var(--fit,1)); line-height:1.25; margin:0 0 2mm; border-left:5px solid var(--navy); padding-left:2.5mm; }
+  h3{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(11pt * var(--fit,1)); margin:0 0 1.5mm; }
+  p{ font-size:calc(9.3pt * var(--fit,1)); line-height:1.65; text-align:justify; margin:0 0 1.5mm; }
   figure{ margin:0 0 2mm; } figure img{ width:100%; display:block; border:0.5px solid #999; }
-  figcaption{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:7.5pt; color:#555; padding:1mm 0; border-bottom:1px dotted #aaa; }
+  figcaption{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(7.5pt * var(--fit,1)); color:#555; padding:1mm 0; border-bottom:1px dotted #aaa; }
   ul.briefs{ list-style:none; margin:0; padding:0; }
-  ul.briefs li{ font-size:8.8pt; line-height:1.4; padding:1.4mm 0; border-bottom:1px dotted #bbb; }
+  ul.briefs li{ font-size:calc(8.8pt * var(--fit,1)); line-height:1.4; padding:1.4mm 0; border-bottom:1px dotted #bbb; }
   ul.briefs li b{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; color:var(--navy); }
-  footer{ column-span:all; margin-top:3mm; border-top:2px solid var(--ink); padding-top:2mm; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:8pt; color:#444; display:flex; justify-content:space-between; }
+  footer{ column-span:all; margin-top:3mm; border-top:2px solid var(--ink); padding-top:2mm; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(8pt * var(--fit,1)); color:#444; display:flex; justify-content:space-between; }
   /* ---- P2 助成金カード + QR ---- */
   .sect-head{ column-span:all; background:linear-gradient(90deg,var(--teal),var(--green)); color:#fff; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
-              font-weight:800; font-size:13pt; padding:2mm 4mm; margin:0 0 3mm; border-radius:2mm; }
+              font-weight:800; font-size:calc(13pt * var(--fit,1)); padding:2mm 4mm; margin:0 0 3mm; border-radius:2mm; }
   .grant{ break-inside:avoid; display:flex; gap:2.5mm; border:1px solid #cdd8e6; border-radius:1mm;
           padding:2mm; margin-bottom:2.5mm; background:#f7fafd; }
   .grant-body{ flex:1; }
-  .grant b{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9.5pt; line-height:1.3; display:block; }
-  .grant .meta{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:8.5pt; margin:.6mm 0; }
+  .grant b{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(9.5pt * var(--fit,1)); line-height:1.3; display:block; }
+  .grant .meta{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(8.5pt * var(--fit,1)); margin:.6mm 0; }
   .grant .amt{ color:var(--accent); font-weight:800; }
-  .grant .gsum{ font-size:8.2pt; line-height:1.45; margin:0; color:#333; }
+  .grant .gsum{ font-size:calc(8.2pt * var(--fit,1)); line-height:1.45; margin:0; color:#333; }
   .qr{ width:15mm; text-align:center; flex:none; }
   .qr svg, .qr img{ width:15mm; height:15mm; display:block; }
-  .qr span{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:6.5pt; color:var(--navy); }
+  .qr span{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(6.5pt * var(--fit,1)); color:var(--navy); }
   .grants-head{ display:flex; align-items:center; gap:3mm; }
   .grants-head span:first-child{ flex:1; }
   .head-qr{ display:flex; flex-direction:column; align-items:center; background:#fff; border-radius:1.5mm; padding:1mm; }
   .head-qr img{ width:12mm; height:12mm; display:block; }
-  .head-qr small{ font-size:6pt; color:var(--teal); font-weight:800; }
+  .head-qr small{ font-size:calc(6pt * var(--fit,1)); color:var(--teal); font-weight:800; }
   .box{ break-inside:avoid; border:1.5px solid var(--teal); border-radius:2mm; padding:3mm; margin-bottom:3mm; overflow:hidden; }
-  .box > h3{ background:var(--teal); color:#fff; margin:-3mm -3mm 2.5mm; padding:2mm 3mm; font-size:11pt; }
+  .box > h3{ background:var(--teal); color:#fff; margin:-3mm -3mm 2.5mm; padding:2mm 3mm; font-size:calc(11pt * var(--fit,1)); }
   ul.gyoumu{ list-style:none; margin:0; padding:0; }
-  ul.gyoumu li{ font-size:8.6pt; line-height:1.45; padding:1.6mm 0; border-bottom:1px dotted #bbb; }
+  ul.gyoumu li{ font-size:calc(8.6pt * var(--fit,1)); line-height:1.45; padding:1.6mm 0; border-bottom:1px dotted #bbb; }
   ul.gyoumu li b{ display:block; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; color:var(--navy); }
   .vol-box{ background:#fff3ef; border:1.5px solid var(--accent); }
   .vol-box > h3{ background:var(--accent); }
   .access{ display:flex; gap:3mm; align-items:center; }
   .access .qr{ width:26mm; } .access .qr svg, .access .qr img{ width:26mm; height:26mm; }
-  .access .info{ flex:1; font-size:8.6pt; line-height:1.55; }
+  .access .info{ flex:1; font-size:calc(8.6pt * var(--fit,1)); line-height:1.55; }
   .access .info b{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }
   /* KPI */
   .kpis{ break-inside:avoid; display:grid; grid-template-columns:1fr 1fr; gap:1.5mm; margin-bottom:3mm; }
   .kpi{ border:1px solid #cdd8e6; border-top:3px solid var(--navy); padding:2mm; text-align:center; background:#f7fafd; }
-  .kpi .lbl{ display:block; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:8pt; color:var(--navy); }
-  .kpi .num{ display:block; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:20pt; line-height:1.1; color:var(--ink); }
-  .kpi .num small{ font-size:9pt; font-weight:700; margin-left:.5mm; }
-  .kpi .note{ display:block; font-size:6.8pt; color:#777; }
+  .kpi .lbl{ display:block; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:calc(8pt * var(--fit,1)); color:var(--navy); }
+  .kpi .num{ display:block; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:calc(20pt * var(--fit,1)); line-height:1.1; color:var(--ink); }
+  .kpi .num small{ font-size:calc(9pt * var(--fit,1)); font-weight:700; margin-left:.5mm; }
+  .kpi .note{ display:block; font-size:calc(6.8pt * var(--fit,1)); color:#777; }
   /* 熊本レポート・時事 */
   .report{ break-inside:avoid; border:1.5px solid var(--accent); margin-bottom:3mm; }
-  .report > h3{ background:var(--accent); color:#fff; margin:0; padding:2mm 3mm; font-size:11pt; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }
+  .report > h3{ background:var(--accent); color:#fff; margin:0; padding:2mm 3mm; font-size:calc(11pt * var(--fit,1)); font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }
   .report .rin{ padding:3mm; }
   .report p{ margin:0 0 2mm; }
   .report .orgs{ list-style:none; margin:0; padding:0; border-top:1px dotted #d8b3a6; }
-  .report .orgs li{ font-size:8pt; padding:1mm 0 1mm 4mm; position:relative; border-bottom:1px dotted #eee; }
+  .report .orgs li{ font-size:calc(8pt * var(--fit,1)); padding:1mm 0 1mm 4mm; position:relative; border-bottom:1px dotted #eee; }
   .report .orgs li:before{ content:"◈"; color:var(--accent); position:absolute; left:0; }
-  .jiji li{ font-size:8.4pt; line-height:1.5; padding:1.4mm 0 1.4mm 4mm; position:relative; border-bottom:1px dotted #bbb; list-style:none; }
+  .jiji li{ font-size:calc(8.4pt * var(--fit,1)); line-height:1.5; padding:1.4mm 0 1.4mm 4mm; position:relative; border-bottom:1px dotted #bbb; list-style:none; }
   .jiji li:before{ content:"—"; position:absolute; left:0; color:var(--navy); }
   .jiji{ margin:0; padding:0; }
   .ph{ color:#b04a2a; } /* 差し替え待ちの目印(任意) */
@@ -120,7 +120,7 @@
             box-shadow:none !important; border-radius:0 !important; overflow:hidden !important;
             break-after:page; page-break-after:always; break-inside:avoid; }
     .page:last-child{ break-after:auto; page-break-after:auto; }
-    .cols{ column-count:3 !important; height:calc(420mm - var(--mt) - var(--mb) - 30mm - 14mm) !important; }
+    .cols{ column-count:var(--cols,3) !important; height:calc(420mm - var(--mt) - var(--mb) - 30mm - 14mm) !important; }
     .page.back .cols{ height:calc(420mm - var(--mt) - var(--mb) - 21mm - 10mm) !important; }
   }
 </style></head>
@@ -143,6 +143,10 @@
     <button class="ed-btn" data-ins="divider" type="button">区切り線</button>
   </span>
   <button id="ed-free" class="ed-btn" type="button">🧩 自由配置OFF</button>
+  <span class="ed-cols">段組
+    <button class="ed-btn" data-cols="2" type="button">2</button>
+    <button class="ed-btn" data-cols="3" type="button">3</button>
+  </span>
   <span class="ed-margin">余白<small>mm</small>
     上<input type="number" id="mg-t" class="ed-num" min="0" max="40" step="1">
     下<input type="number" id="mg-b" class="ed-num" min="0" max="40" step="1">
@@ -216,7 +220,7 @@
       <h3>広域連携レポート｜熊本の災害支援へ</h3>
       <div class="rin">
         <p>今月、当センターのメンバーが熊本の災害支援現場へ入りました。被災地での炊き出しや物資調整に加え、現地の支援団体・行政・ボランティアセンターとの情報共有を行い、宇和島で培った“フェーズフリー”な支援ノウハウを持ち寄って連携しました。ここで結んだ広域ネットワークは、いざ宇和島が被災したときの受援体制にも生きてきます。</p>
-        <div style="font-family:'Hiragino Kaku Gothic ProN',sans-serif;font-size:8pt;color:var(--accent);font-weight:700;">情報共有・連携した団体</div>
+        <div style="font-family:'Hiragino Kaku Gothic ProN',sans-serif;font-size:calc(8pt * var(--fit,1));color:var(--accent);font-weight:700;">情報共有・連携した団体</div>
         <ul class="orgs"><li>（現地災害VC）</li><li>（協働した支援団体名）</li><li>（物資・炊き出し連携先）</li></ul>
       </div>
     </div>
@@ -290,7 +294,7 @@
 
     <div class="box vol-box">
       <h3>ボランティア募集｜好き!るチケッ人</h3>
-      <p style="font-size:8.6pt;line-height:1.5;margin:0 0 2mm">「手伝ってほしい」と「手伝いたい」をつなぐマッチング。自分の“好き”や“得意”を活かして、空いた時間にまちづくりへ。有償・無償どちらもOK、スマホ操作はセンターがサポートします。</p>
+      <p style="font-size:calc(8.6pt * var(--fit,1));line-height:1.5;margin:0 0 2mm">「手伝ってほしい」と「手伝いたい」をつなぐマッチング。自分の“好き”や“得意”を活かして、空いた時間にまちづくりへ。有償・無償どちらもOK、スマホ操作はセンターがサポートします。</p>
       <div class="access">
         <div class="info"><b>登録・相談はこちら →</b><br>お祭り運営・イベント手伝い・大学ボランティア受け入れなど、幅広く募集中。まずはセンターへお声がけください。</div>
         <div class="qr"><img src="assets/kyodo_hubplace_R8.svg" alt="HubPLACE QR"><span>参加登録</span></div>
