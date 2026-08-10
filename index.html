@@ -10,7 +10,8 @@
   :root{ --ink:#2a2a2a; --accent:#ea5a2d; --accent2:#f2934a; --navy:#2f93a4; --teal:#2f93a4; --green:#7fc069; }
   *{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   html,body{ margin:0; }
-  .page{ width:297mm; height:420mm; padding:10mm 9mm; background:#fff; color:var(--ink);
+  .page{ --mt:10mm; --mb:10mm; --ml:9mm; --mr:9mm;
+         width:297mm; height:420mm; padding:var(--mt) var(--mr) var(--mb) var(--ml); background:#fff; color:var(--ink);
          font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif; page-break-after:always; position:relative; }
   .page:last-child{ page-break-after:auto; }
   .masthead{ display:flex; align-items:flex-end; justify-content:space-between; border-bottom:4px double var(--ink); padding-bottom:4mm; }
@@ -24,7 +25,7 @@
   .issue{ text-align:right; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9.5pt; line-height:1.5; }
   .issue .vol{ font-size:13pt; font-weight:800; color:var(--navy); }
   .cols{ column-count:3; column-gap:6mm; column-rule:1px solid #bbb; margin-top:5mm;
-         height:calc(420mm - 10mm - 10mm - 30mm - 14mm); position:relative; }
+         height:calc(420mm - var(--mt) - var(--mb) - 30mm - 14mm); position:relative; }
   /* 自由配置モード：各ブロックを絶対配置にして個別ドラッグ/リサイズ */
   body.freelayout .cols{ column-count:1; column-rule:none; }
   body.freelayout .cols > *{ position:absolute; margin:0 !important; box-sizing:border-box; }
@@ -36,7 +37,7 @@
   .bh-main{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:16pt; color:var(--navy); line-height:1.1; }
   .bh-sub{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9pt; color:#666; margin-top:1mm; }
   .bh-meta{ text-align:right; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-size:9pt; color:#444; line-height:1.5; }
-  .page.back .cols{ height:calc(420mm - 10mm - 10mm - 21mm - 10mm); }
+  .page.back .cols{ height:calc(420mm - var(--mt) - var(--mb) - 21mm - 10mm); }
   article{ break-inside:avoid; margin-bottom:4mm; padding-bottom:3mm; border-bottom:1px solid #ccc; }
   .lead-kicker{ column-span:all; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; color:var(--accent); font-weight:700; font-size:11pt; margin-bottom:1mm; }
   .lead-headline{ font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; font-weight:800; font-size:26pt; line-height:1.15; letter-spacing:.02em; margin:0 0 2mm; column-span:all; border-bottom:2px solid var(--accent); padding-bottom:2mm; }
@@ -100,7 +101,7 @@
   /* ===== 画面(Web)表示：スマホ対応。印刷(PDF)はA3のまま ===== */
   @media screen {
     html,body{ background:#e9edf2; }
-    .page{ width:min(96vw,880px); height:auto; min-height:0; margin:16px auto; padding:26px 22px;
+    .page{ width:min(96vw,880px); height:auto; min-height:0; margin:16px auto;
             box-shadow:0 3px 20px rgba(0,0,0,.13); border-radius:5px; page-break-after:auto; }
     .cols{ column-count:2; height:auto; margin-top:14px; }
     .page.back .cols{ height:auto; }
@@ -138,9 +139,17 @@
     <button class="ed-btn" data-ins="divider" type="button">区切り線</button>
   </span>
   <button id="ed-free" class="ed-btn" type="button">🧩 自由配置OFF</button>
+  <span class="ed-margin">余白<small>mm</small>
+    上<input type="number" id="mg-t" class="ed-num" min="0" max="40" step="1">
+    下<input type="number" id="mg-b" class="ed-num" min="0" max="40" step="1">
+    左<input type="number" id="mg-l" class="ed-num" min="0" max="40" step="1">
+    右<input type="number" id="mg-r" class="ed-num" min="0" max="40" step="1">
+  </span>
   <span class="sp"></span>
   <button id="ed-save" class="ed-btn ed-primary" type="button">💾 保存</button>
-  <button id="ed-export" class="ed-btn" type="button">⬇ HTML書き出し</button>
+  <button id="ed-pdf" class="ed-btn" type="button">🖨 A3 PDF</button>
+  <button id="ed-canva" class="ed-btn" type="button">🎨 Canvaへ</button>
+  <button id="ed-export" class="ed-btn" type="button">⬇ HTML</button>
   <button id="ed-reset" class="ed-btn ed-danger" type="button">↺ 破棄</button>
   <button id="ed-done" class="ed-btn" type="button">✓ 終了</button>
 </div>
@@ -173,7 +182,27 @@
       <h2>「好き!るチケッ人」デモ運用スタート</h2>
       <p>「手伝ってほしい人」と「手伝いたい人」を気軽につなぐWebアプリＭＢの運用ルールを、牛鬼会議で協議。自分の「好き」や「得意」を活かして、空いた時間に気軽にまちづくりへ参加できるマッチングの場だ。有償・無償どちらの活動も掲載でき、スマホが苦手な人は協働センターが操作をサポートする。お祭りや地域イベント、大学ボランティアの受け入れなど、幅広い活用が期待される。</p>
     </article>
-    <article style="border-bottom:0">
+    <article>
+      <h2>道の駅みまで「防災体験」</h2>
+      <p>７月１１・１２日の１０〜１５時、道の駅みまで防災道の駅フェアを開催した。地震体験車や消火器体験、流域治水の模型展示など、遊びながら災害への備えを学べるプログラムが並び、家族連れでにぎわった。「もしも」を自分ごとにする一日となった。</p>
+    </article>
+
+    <article>
+      <h2>未来のまちを、みんなで語ろう</h2>
+      <p>７月２６日１３時、市役所２階大ホールで市民公開講座を開催。宇和島市出身の酒向正春医師を講師に迎え、健康・医療・福祉が調和したまちづくりを考えた。先着１００名・入場無料で、世代を超えた参加者が「これからの宇和島」に耳を傾けた。</p>
+    </article>
+
+    <article>
+      <h3>やりたいを形にする場「イロドルキャンパス」</h3>
+      <p>７月８日、イベントや講座を実践するオンラインコミュニティ「イロドルキャンパス」が始動。専用ワークシートや個別コンサル、交流ルームなど４つの機能で、続く企画とファンづくりを伴走支援する。「やってみたい」を、続く活動へ。</p>
+    </article>
+
+    <div class="box">
+      <h3>協働ラボ「かいぎしつ」</h3>
+      <p>会議室だけどラボ！？　センター内には３ＤプリンターやＵＶプリンターを配備。宣伝グッズづくりやファンドレイジングなど、地域活動の第一歩を「見える・触れる」形で応援します（非営利・社会貢献活動に限る／材料費は実費）。</p>
+    </div>
+
+    <article>
       <h3>今月の出来事</h3>
       <ul class="briefs">
         <li><b>7/1</b> 麻雀初心者サークル始動（UWAJIMA QUEST）</li>
@@ -183,6 +212,12 @@
         <li><b>7/26</b> 市民公開講座WS（市役所2階大ホール・先着100名・無料）</li>
       </ul>
     </article>
+
+    <article style="border-bottom:0">
+      <h3>編集後記</h3>
+      <p>「きょう、どう？」から始まる協働。いつもの延長、いつものなかで――日常の中にある「つながり」が、いざという時の助け合いになります。協働センターは、そんな日常のつながりを育てる場所。次号もお楽しみに。</p>
+    </article>
+
     <footer>
       <span>宇和島市市民協働センター（〒798-0050 宇和島市堀端町1-25 中央公民館2階／10〜19時 休館：日月祝）</span>
       <span>HubPLACE・Instagram・X・Facebook・LINE で発信中</span>

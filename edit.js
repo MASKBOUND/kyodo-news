@@ -151,6 +151,7 @@
       var data = { cols: colsList.map(function (c) { return c.innerHTML; }), free: freeOn, at: new Date().toISOString() };
       localStorage.setItem(LSKEY, JSON.stringify(data));
       if (freeOn) saveFree();
+      saveMargins();
       flash("この端末に保存しました ✓");
     } catch (e) {
       flash("保存に失敗（画像が大きすぎる可能性）。HTML書き出しをお使いください");
@@ -315,6 +316,54 @@
     timer = setTimeout(function () { s.textContent = ""; }, 4000);
   }
 
+  // ================= 縁の余白(上下左右)調整 =================
+  var LSKEY_MARGIN = "kyodo_margin_" + issue;
+  var MG = { t: 10, b: 10, l: 9, r: 9 };
+  function applyMargins() {
+    pages.forEach(function (p) {
+      p.style.setProperty("--mt", MG.t + "mm");
+      p.style.setProperty("--mb", MG.b + "mm");
+      p.style.setProperty("--ml", MG.l + "mm");
+      p.style.setProperty("--mr", MG.r + "mm");
+    });
+  }
+  function loadMargins() {
+    try { var s = JSON.parse(localStorage.getItem(LSKEY_MARGIN) || "null"); if (s) MG = s; } catch (e) {}
+    ["t", "b", "l", "r"].forEach(function (k) { var el = document.getElementById("mg-" + k); if (el) el.value = MG[k]; });
+    applyMargins();
+  }
+  function onMarginInput() {
+    ["t", "b", "l", "r"].forEach(function (k) {
+      var el = document.getElementById("mg-" + k);
+      if (el) { var v = parseFloat(el.value); if (!isNaN(v)) MG[k] = v; }
+    });
+    applyMargins();
+  }
+  function saveMargins() { localStorage.setItem(LSKEY_MARGIN, JSON.stringify(MG)); }
+
+  // ================= A3 PDF 出力 =================
+  function exportPDF() {
+    flash("印刷ダイアログで「PDFに保存」／用紙サイズ A3／余白『なし』を選んでください");
+    setTimeout(function () { window.print(); }, 400);
+  }
+
+  // ================= Canvaへ保存（案内） =================
+  function toCanva() {
+    var url = location.href.split("#")[0];
+    try { if (navigator.clipboard) navigator.clipboard.writeText(url); } catch (e) {}
+    alert(
+      "Canvaへ保存する方法\n\n" +
+      "【自動・推奨】\n" +
+      "1) 💾保存 → ⬇HTML でindex.htmlを書き出し\n" +
+      "2) それを公開（リポジトリに差し替え）\n" +
+      "3) Claudeに「Canvaへ取り込んで」と伝える\n" +
+      "→ 公開URLから版面そのままCanvaに取り込みます\n\n" +
+      "【手動】\n" +
+      "🖨A3 PDFでPDF化 → Canvaの「アップロード」からデザイン化\n\n" +
+      "公開URLをコピーしました:\n" + url
+    );
+  }
+
   // ---- ボタン配線 ----
   function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener("click", fn); }
   on("ed-toggle", function () { setEditing(!editing); });
@@ -323,6 +372,13 @@
   on("ed-export", exportHtml);
   on("ed-reset", reset);
   on("ed-free", function () { if (freeOn) exitFree(); else enterFree(); });
+  on("ed-pdf", exportPDF);
+  on("ed-canva", toCanva);
+  ["t", "b", "l", "r"].forEach(function (k) {
+    var el = document.getElementById("mg-" + k);
+    if (el) el.addEventListener("input", onMarginInput);
+  });
+  loadMargins();
 
   // 挿入(追加)ボタン
   Array.prototype.forEach.call(document.querySelectorAll("[data-ins]"), function (btn) {
