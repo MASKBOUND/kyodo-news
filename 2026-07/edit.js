@@ -107,6 +107,7 @@
     el.scrollIntoView({ block: "center", behavior: "smooth" });
     if (type === "image" && img) { pendingImg = img; picker.click(); }
     else { var f = el.querySelector(TEXT_SEL); if (f) { f.focus(); } }
+    setTimeout(fitFill, 60);
     flash("要素を追加しました（掴んで位置調整・クリックで編集）");
   }
 
@@ -139,7 +140,8 @@
           sortables.push(window.Sortable.create(cols, {
             animation: 150, handle: false, draggable: "> *",
             ghostClass: "ed-ghost", chosenClass: "ed-chosen",
-            filter: "[contenteditable=true]:focus", preventOnFilter: false
+            filter: "[contenteditable=true]:focus", preventOnFilter: false,
+            onEnd: function () { setTimeout(fitFill, 60); }   // 並べ替え/削除後に再フィット
           }));
         });
       } else {
@@ -508,12 +510,12 @@
         var T = cols.scrollHeight;
         cols.style.columnCount = pc; cols.style.height = ph;
         if (T <= 0) break;
-        fit = Math.max(0.7, Math.min(1.8, fit * (fixedH * N * 0.92) / T));
+        fit = Math.max(0.55, Math.min(1.8, fit * (fixedH * N * 0.92) / T));
       }
       p.style.setProperty("--fit", fit);
       // ② 実レイアウトで溢れていたら、収まるまで3%ずつ縮小
-      for (var g = 0; g < 20 && overflowing(cols) && fit > 0.7; g++) {
-        fit = Math.max(0.7, fit - 0.03);
+      for (var g = 0; g < 26 && overflowing(cols) && fit > 0.55; g++) {
+        fit = Math.max(0.55, fit - 0.03);
         p.style.setProperty("--fit", fit);
       }
       // ③ まだ空きがあり溢れていなければ、溢れ直前まで1.5%ずつ拡大
@@ -567,6 +569,16 @@
     el.style.zoom = Math.min(1, (window.innerWidth - 20) / pageW);
   }
   window.addEventListener("resize", fitPaper);
+  window.addEventListener("load", fitFill);   // 画像ロード後に再フィット（溢れ防止）
+  // 各画像の読み込み完了でも再フィット（初回のみ・デバウンス）
+  var _reft = null;
+  colsList.forEach(function (cols) {
+    cols.querySelectorAll("img").forEach(function (img) {
+      if (!img.complete) img.addEventListener("load", function () {
+        clearTimeout(_reft); _reft = setTimeout(fitFill, 120);
+      }, { once: true });
+    });
+  });
 
   // ---- ボタン配線 ----
   function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener("click", fn); }
@@ -606,11 +618,18 @@
     btn.addEventListener("click", function () { insertBlock(btn.getAttribute("data-ins")); });
   });
 
-  // 挿入先ページ（最後に触れた列）を追従
+  // 挿入先ページ（最後に触れた列）を追従＋文字編集後に自動フィット
+  var _eft = null;
   colsList.forEach(function (cols) {
     ["mousedown", "focusin"].forEach(function (ev) {
       cols.addEventListener(ev, function () { activeCols = cols; });
     });
+    cols.addEventListener("focusout", function () {          // 文字の増減後に再フィット（手動サイズ時は無効）
+      if (!editing) return; clearTimeout(_eft); _eft = setTimeout(fitFill, 350);
+    });
+  });
+  on("ed-refit", function () {                              // 「整える」＝自動フィットに戻して充填
+    localStorage.removeItem(LSKEY_FITM); fitFill(); flash("紙面を整えました（自動フィット）");
   });
   activeCols = colsList[0] || null;
   fitFill();   // オートフィット→内部でfitPaperも呼ぶ
