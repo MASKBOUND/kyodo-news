@@ -293,7 +293,7 @@
   // ---- 公開/書き出し用HTML：編集機能は残し、一時状態だけリセット ----
   function getCleanHTML() {
     var clone = document.documentElement.cloneNode(true);
-    var pp = clone.querySelector(".ed-pool-panel"); if (pp) pp.remove(); // 素材パネルは書き出さない
+    clone.querySelectorAll(".ed-pool-panel").forEach(function (n) { n.remove(); }); // 素材/見出しパネルは書き出さない
     clone.querySelectorAll("[contenteditable]").forEach(function (n) { n.removeAttribute("contenteditable"); });
     clone.querySelectorAll(".ed-ghost,.ed-chosen,.ed-textediting,.ed-selected,.ed-imgsel").forEach(function (n) {
       n.classList.remove("ed-ghost", "ed-chosen", "ed-textediting", "ed-selected", "ed-imgsel");
@@ -594,6 +594,33 @@
     });
   }
 
+  // ================= 見出しAI候補から選ぶ =================
+  var HLS = [];
+  try { HLS = JSON.parse((document.getElementById("ed-headlines") || {}).textContent || "[]"); } catch (e) { HLS = []; }
+  var hlPanel = null;
+  function toggleHeadlines() {
+    if (hlPanel) { hlPanel.remove(); hlPanel = null; return; }
+    if (!editing) setEditing(true);
+    var target = document.querySelector(".lead-headline");
+    if (!target) { flash("大見出しが見つかりません"); return; }
+    hlPanel = document.createElement("div"); hlPanel.className = "ed-pool-panel";
+    var h = '<div class="pph"><b>💡 見出し案（AI）</b><button class="ed-btn" id="hl-close">閉じる</button></div>';
+    if (!HLS.length) h += '<p style="padding:14px;color:#666">候補がありません（gen_headlines.py 未実行）。</p>';
+    HLS.forEach(function (t, i) {
+      h += '<div class="ppi"><div class="ppi-b"><b>' + esc(t) + '</b>' +
+        '<button class="ed-btn ed-primary" data-hi="' + i + '">この見出しにする</button></div></div>';
+    });
+    h += '<div class="ppi"><div class="ppi-b" style="color:#666;font-size:11px">選んだ後も見出しを直接クリックして微調整できます。</div></div>';
+    hlPanel.innerHTML = h; document.body.appendChild(hlPanel);
+    hlPanel.querySelector("#hl-close").addEventListener("click", toggleHeadlines);
+    hlPanel.querySelectorAll("[data-hi]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        target.textContent = HLS[parseInt(btn.getAttribute("data-hi"), 10)];
+        setTimeout(fitFill, 60); flash("大見出しを差し替えました");
+      });
+    });
+  }
+
   // ================= A3 PDF 出力 =================
   function exportPDF() {
     var ok = confirm(
@@ -699,6 +726,7 @@
     localStorage.removeItem(LSKEY_FITM); fitFill(); flash("紙面を整えました（自動フィット）");
   });
   on("ed-pool-btn", togglePool);
+  on("ed-hl-btn", toggleHeadlines);
   activeCols = colsList[0] || null;
   fitFill();   // オートフィット→内部でfitPaperも呼ぶ
 })();
